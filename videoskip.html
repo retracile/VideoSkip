@@ -456,6 +456,22 @@ function loadFileAsURL(){
 	fileReader.readAsText(fileToLoad)
 }
 
+function loadSkipsFromURL(url){
+    fetch(url)
+        .then(response => response.text())
+        .then(function(skips_data){
+    var data = skips_data.split('data:image/jpeg;base64,');		//separate skips and offsets from screenshot
+    var data1 = data[0].split('{');										//separate skips from offsets
+    //name = fileToLoad.name.slice(0,-4).replace(/ \[[a-z0-9\-]*\]/,'');	//remove extension and service list
+    skipBox.value = data1[0].trim();
+    if(data1[1]) offsets = JSON.parse('{' + data1[1].trim());			//make offsets object
+    if(data[1]) screenShot.src = 'data:image/jpeg;base64,' + data[1]	//extract screenshot
+    cuts = PF_SRT.parse(skipBox.value);
+    setSliders();
+    applyOffset()								//this includes setActions at the end
+    });
+}
+
 //similar, for loading subtitles; includes option to generate skips for profanity
 function loadSubs(){
 	var fileToLoad = subFile.files[0],
@@ -1521,6 +1537,18 @@ if (video !== null ) {
     setActions();
     makeTimeLabels()
   })
+}
+const skips = params.get("skips");
+if (skips !== null ) {
+  console.log("found skips:" + skips);
+  loadSkipsFromURL(skips);
+/*
+  ready(function(){
+    cuts = PF_SRT.parse(skipBox.value);
+    setActions();
+    makeTimeLabels()
+  })
+*/
 }
 </script>
 </body>
